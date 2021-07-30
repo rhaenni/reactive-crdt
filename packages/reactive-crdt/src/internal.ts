@@ -11,7 +11,7 @@ export function parseYjsReturnValue(value: any, implicitObserver?: any) {
 
     if (value instanceof Y.Array || value instanceof Y.Map) {
       if (!yToWrappedCache.has(value)) {
-        const wrapped = crdtValue(value);
+        const wrapped = crdtValue(value, null);
         yToWrappedCache.set(value, wrapped);
       }
       value = yToWrappedCache.get(value);

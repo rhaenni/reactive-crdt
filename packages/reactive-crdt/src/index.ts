@@ -27,12 +27,25 @@ export function getInternalAny(
   return object[INTERNAL_SYMBOL];
 }
 
-export function crdtValue<T extends NestedSchemaType>(value: T | Y.Array<any> | Y.Map<any>) {
+export function crdtValue<T extends NestedSchemaType>(
+  value: T | Y.Array<any> | Y.Map<any>,
+  parent: T | Y.Array<any> | Y.Map<any>
+) {
   value = (getInternalAny(value as any) as any) || value; // unwrap
   if (value instanceof Y.Array) {
-    return crdtArray([], value);
+    if (parent && parent !== value.parent) {
+      // parent has changed = moved
+      return crdtArray(value.toJSON()); // create new yarray since yjs does not allow moving an already inserted type
+    } else {
+      return crdtArray([], value);
+    }
   } else if (value instanceof Y.Map) {
-    return crdtObject({}, value);
+    if (parent && parent !== value.parent) {
+      // parent has changed = moved
+      return crdtObject(value.toJSON()); // create new ymap since yjs does not allow moving an already inserted type
+    } else {
+      return crdtObject({}, value);
+    }
   } else if (typeof value === "string") {
     return value; // TODO
   } else if (Array.isArray(value)) {

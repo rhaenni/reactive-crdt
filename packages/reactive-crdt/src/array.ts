@@ -29,7 +29,7 @@ function arrayImplementation<T>(arr: Y.Array<T>) {
   } as T[]["slice"];
   const wrapItems = function wrapItems(items) {
     return items.map(item => {
-      const wrapped = crdtValue(item as any); // TODO
+      const wrapped = crdtValue(item as any, arr); // TODO
       const internal = getInternalAny(wrapped) || wrapped;
       if (internal instanceof Box) {
         return internal.value;

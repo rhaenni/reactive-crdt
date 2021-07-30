@@ -29,7 +29,7 @@ export function crdtObject<T extends ObjectSchemaType>(initializer: T, map = new
       if (typeof p !== "string") {
         throw new Error();
       }
-      const wrapped = crdtValue(value); // TODO: maybe set cache
+      const wrapped = crdtValue(value, map); // TODO: maybe set cache
       const internal = getInternalAny(wrapped) || wrapped;
       if (internal instanceof Box) {
         map.set(p, internal.value);

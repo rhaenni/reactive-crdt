@@ -178,6 +178,20 @@ describe("reactive-crdt", () => {
     expect(Array.from(store1.arr)).toStrictEqual([0, 1]);
   });
 
+  it("move already inserted object to different location in document", () => {
+    const doc1 = new Y.Doc();
+    let store1 = crdt<any>(doc1);
+    store1.mymap = {};
+    store1.myothermap = { test: store1.mymap };
+  });
+
+  it("move already inserted array to different location in document", () => {
+    const doc1 = new Y.Doc();
+    let store1 = crdt<any>(doc1);
+    store1.myarr = [{ foo: "bar" }];
+    store1.myothermap = { test: store1.myarr };
+  });
+
   it("filter and reassign array of objects", () => {
     const doc1 = new Y.Doc();
     let store1 = crdt<any>(doc1);
@@ -185,9 +199,6 @@ describe("reactive-crdt", () => {
     store1.arr.push({ title: "Todo 1", completed: true });
     store1.arr.push({ title: "Todo 2", completed: false });
     let filtered_array = store1.arr.filter(x => !x.completed);
-    console.log("fa", filtered_array);
     store1.arr = filtered_array;
-
-    //expect(Array.from(store1.arr)).toStrictEqual([0, 1]);
   });
 });
