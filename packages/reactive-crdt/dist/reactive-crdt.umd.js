@@ -47,7 +47,7 @@
 
       if (value instanceof Y__namespace.Array || value instanceof Y__namespace.Map) {
         if (!yToWrappedCache.has(value)) {
-          var wrapped = crdtValue$1(value);
+          var wrapped = crdtValue$1(value, null);
           yToWrappedCache.set(value, wrapped);
         }
 
@@ -82,7 +82,7 @@
           throw new Error();
         }
 
-        var wrapped = crdtValue$1(value); // TODO: maybe set cache
+        var wrapped = crdtValue$1(value, map); // TODO: maybe set cache
 
         var internal = getInternalAny$1(wrapped) || wrapped;
 
@@ -167,13 +167,23 @@
   ) {
     return object[INTERNAL_SYMBOL$1];
   }
-  function crdtValue$1(value) {
+  function crdtValue$1(value, parent) {
     value = getInternalAny$1(value) || value; // unwrap
 
     if (value instanceof Y__namespace.Array) {
-      return crdtArray([], value);
+      if (parent && parent !== value.parent) {
+        // parent has changed = moved
+        return crdtArray(value.toJSON()); // create new yarray since yjs does not allow moving an already inserted type
+      } else {
+        return crdtArray([], value);
+      }
     } else if (value instanceof Y__namespace.Map) {
-      return crdtObject({}, value);
+      if (parent && parent !== value.parent) {
+        // parent has changed = moved
+        return crdtObject(value.toJSON()); // create new ymap since yjs does not allow moving an already inserted type
+      } else {
+        return crdtObject({}, value);
+      }
     } else if (typeof value === "string") {
       return value; // TODO
     } else if (Array.isArray(value)) {
@@ -210,7 +220,7 @@
 
     var wrapItems = function wrapItems(items) {
       return items.map(function (item) {
-        var wrapped = crdtValue$1(item); // TODO
+        var wrapped = crdtValue$1(item, arr); // TODO
 
         var internal = getInternalAny$1(wrapped) || wrapped;
 
@@ -436,13 +446,23 @@
   ) {
     return object[INTERNAL_SYMBOL];
   }
-  function crdtValue(value) {
+  function crdtValue(value, parent) {
     value = getInternalAny(value) || value; // unwrap
 
     if (value instanceof Y__namespace.Array) {
-      return crdtArray([], value);
+      if (parent && parent !== value.parent) {
+        // parent has changed = moved
+        return crdtArray(value.toJSON()); // create new yarray since yjs does not allow moving an already inserted type
+      } else {
+        return crdtArray([], value);
+      }
     } else if (value instanceof Y__namespace.Map) {
-      return crdtObject({}, value);
+      if (parent && parent !== value.parent) {
+        // parent has changed = moved
+        return crdtObject(value.toJSON()); // create new ymap since yjs does not allow moving an already inserted type
+      } else {
+        return crdtObject({}, value);
+      }
     } else if (typeof value === "string") {
       return value; // TODO
     } else if (Array.isArray(value)) {

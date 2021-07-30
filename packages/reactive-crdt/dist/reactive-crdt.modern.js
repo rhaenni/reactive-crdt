@@ -29,7 +29,7 @@ function parseYjsReturnValue(value, implicitObserver) {
 
     if (value instanceof Y.Array || value instanceof Y.Map) {
       if (!yToWrappedCache.has(value)) {
-        const wrapped = crdtValue$1(value);
+        const wrapped = crdtValue$1(value, null);
         yToWrappedCache.set(value, wrapped);
       }
 
@@ -60,7 +60,7 @@ function crdtObject(initializer, map = new Y.Map()) {
         throw new Error();
       }
 
-      const wrapped = crdtValue$1(value); // TODO: maybe set cache
+      const wrapped = crdtValue$1(value, map); // TODO: maybe set cache
 
       const internal = getInternalAny$1(wrapped) || wrapped;
 
@@ -147,13 +147,23 @@ function getInternalAny$1(object
 ) {
   return object[INTERNAL_SYMBOL$1];
 }
-function crdtValue$1(value) {
+function crdtValue$1(value, parent) {
   value = getInternalAny$1(value) || value; // unwrap
 
   if (value instanceof Y.Array) {
-    return crdtArray([], value);
+    if (parent && parent !== value.parent) {
+      // parent has changed = moved
+      return crdtArray(value.toJSON()); // create new yarray since yjs does not allow moving an already inserted type
+    } else {
+      return crdtArray([], value);
+    }
   } else if (value instanceof Y.Map) {
-    return crdtObject({}, value);
+    if (parent && parent !== value.parent) {
+      // parent has changed = moved
+      return crdtObject(value.toJSON()); // create new ymap since yjs does not allow moving an already inserted type
+    } else {
+      return crdtObject({}, value);
+    }
   } else if (typeof value === "string") {
     return value; // TODO
   } else if (Array.isArray(value)) {
@@ -190,7 +200,7 @@ function arrayImplementation(arr) {
 
   const wrapItems = function wrapItems(items) {
     return items.map(item => {
-      const wrapped = crdtValue$1(item); // TODO
+      const wrapped = crdtValue$1(item, arr); // TODO
 
       const internal = getInternalAny$1(wrapped) || wrapped;
 
@@ -414,13 +424,23 @@ function getInternalAny(object
 ) {
   return object[INTERNAL_SYMBOL];
 }
-function crdtValue(value) {
+function crdtValue(value, parent) {
   value = getInternalAny(value) || value; // unwrap
 
   if (value instanceof Y.Array) {
-    return crdtArray([], value);
+    if (parent && parent !== value.parent) {
+      // parent has changed = moved
+      return crdtArray(value.toJSON()); // create new yarray since yjs does not allow moving an already inserted type
+    } else {
+      return crdtArray([], value);
+    }
   } else if (value instanceof Y.Map) {
-    return crdtObject({}, value);
+    if (parent && parent !== value.parent) {
+      // parent has changed = moved
+      return crdtObject(value.toJSON()); // create new ymap since yjs does not allow moving an already inserted type
+    } else {
+      return crdtObject({}, value);
+    }
   } else if (typeof value === "string") {
     return value; // TODO
   } else if (Array.isArray(value)) {
