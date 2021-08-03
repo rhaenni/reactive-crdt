@@ -1,6 +1,6 @@
 import * as reactive from '@reactivedata/reactive';
 import { markRaw, $reactive, $reactiveproxy } from '@reactivedata/reactive';
-import { makeYJSObservable, useReactiveBindings } from '@reactivedata/yjs-reactive-bindings';
+import { makeYJSObservable, useReactiveBindings, vueRef } from '@reactivedata/yjs-reactive-bindings';
 export { useMobxBindings, useVueBindings } from '@reactivedata/yjs-reactive-bindings';
 import * as Y from 'yjs';
 export { Y };
@@ -240,7 +240,8 @@ function arrayImplementation(arr) {
       return [].map.apply(slice.apply(this), arguments);
     },
     indexOf: function () {
-      return [].indexOf.apply(slice.apply(this), arguments);
+      // check if arg is a vue reactive object and convert toRaw so that indexOf in vue works as expected
+      return [].indexOf.apply(slice.apply(this), [vueRef && vueRef.isReactive(arguments[0]) ? vueRef.toRaw(arguments[0]) : arguments[0], arguments[1]]);
     },
     splice: function () {
       let start = arguments[0] < 0 ? arr.length - Math.abs(arguments[0]) : arguments[0];

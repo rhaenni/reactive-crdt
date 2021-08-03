@@ -41,5 +41,5 @@ export function makeYJSObservable() {
   });
 }
 
-export { useMobxBindings, useReactiveBindings, useVueBindings } from "./observableProvider";
+export { useMobxBindings, useReactiveBindings, useVueBindings, vueRef } from "./observableProvider";
 export { observeText, observeMap, observeDoc };

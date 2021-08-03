@@ -5,6 +5,7 @@ import { parseYjsReturnValue, yToWrappedCache } from "./internal";
 import { CRDTObject } from "./object";
 import { Box } from "./boxed";
 import { isYType } from "./types";
+import { vueRef } from "@reactivedata/yjs-reactive-bindings";
 
 export type CRDTArray<T> = {
   [INTERNAL_SYMBOL]?: Y.Array<T>;
@@ -73,7 +74,11 @@ function arrayImplementation<T>(arr: Y.Array<T>) {
     } as T[]["map"],
 
     indexOf: function() {
-      return [].indexOf.apply(slice.apply(this), arguments);
+      // check if arg is a vue reactive object and convert toRaw so that indexOf in vue works as expected
+      return [].indexOf.apply(slice.apply(this), [
+        vueRef && vueRef.isReactive(arguments[0]) ? vueRef.toRaw(arguments[0]) : arguments[0],
+        arguments[1]
+      ]);
     } as T[]["indexOf"],
 
     splice: function() {

@@ -259,7 +259,8 @@ function arrayImplementation(arr) {
       return [].map.apply(slice.apply(this), arguments);
     },
     indexOf: function indexOf() {
-      return [].indexOf.apply(slice.apply(this), arguments);
+      // check if arg is a vue reactive object and convert toRaw so that indexOf in vue works as expected
+      return [].indexOf.apply(slice.apply(this), [yjsReactiveBindings.vueRef && yjsReactiveBindings.vueRef.isReactive(arguments[0]) ? yjsReactiveBindings.vueRef.toRaw(arguments[0]) : arguments[0], arguments[1]]);
     },
     splice: function splice() {
       var start = arguments[0] < 0 ? arr.length - Math.abs(arguments[0]) : arguments[0];

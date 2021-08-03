@@ -30,7 +30,10 @@ export function useMobxBindings(mobx: any) {
   customCreateAtom = mobx.createAtom;
 }
 
+export var vueRef: any;
+
 export function useVueBindings(vue: any) {
+  vueRef = vue;
   customCreateAtom = function(name: any, obo: any) {
     let id = 0;
     const data = vue.reactive({ data: id });
