@@ -173,14 +173,14 @@
     if (value instanceof Y__namespace.Array) {
       if (parent && parent !== value.parent) {
         // parent has changed = moved
-        return crdtArray(value.toJSON()); // create new yarray since yjs does not allow moving an already inserted type
+        return crdtArray(value.toJSON()); // create new yarray since yjs does not allow moving an already inserted type, probably breaks updates that come in to the original value after the move has been done on another client
       } else {
         return crdtArray([], value);
       }
     } else if (value instanceof Y__namespace.Map) {
       if (parent && parent !== value.parent) {
         // parent has changed = moved
-        return crdtObject(value.toJSON()); // create new ymap since yjs does not allow moving an already inserted type
+        return crdtObject(value.toJSON()); // create new ymap since yjs does not allow moving an already inserted type, probably breaks updates that come in to the original value after the move has been done on another client
       } else {
         return crdtObject({}, value);
       }
@@ -453,14 +453,14 @@
     if (value instanceof Y__namespace.Array) {
       if (parent && parent !== value.parent) {
         // parent has changed = moved
-        return crdtArray(value.toJSON()); // create new yarray since yjs does not allow moving an already inserted type
+        return crdtArray(value.toJSON()); // create new yarray since yjs does not allow moving an already inserted type, probably breaks updates that come in to the original value after the move has been done on another client
       } else {
         return crdtArray([], value);
       }
     } else if (value instanceof Y__namespace.Map) {
       if (parent && parent !== value.parent) {
         // parent has changed = moved
-        return crdtObject(value.toJSON()); // create new ymap since yjs does not allow moving an already inserted type
+        return crdtObject(value.toJSON()); // create new ymap since yjs does not allow moving an already inserted type, probably breaks updates that come in to the original value after the move has been done on another client
       } else {
         return crdtObject({}, value);
       }
@@ -485,7 +485,7 @@
     }
   }
   function crdt(doc) {
-    return crdtObject({}, doc.getMap());
+    return crdtObject({}, doc.getMap("data"));
   }
 
   Object.defineProperty(exports, 'useMobxBindings', {
