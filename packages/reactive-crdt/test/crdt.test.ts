@@ -3,6 +3,13 @@ import { Box, boxed } from "../src/boxed";
 import * as Y from "yjs";
 
 describe("reactive-crdt", () => {
+  it("move already inserted object to different location in document", () => {
+    const doc1 = new Y.Doc();
+    let store1 = crdt<any>(doc1);
+    store1.mymap = {};
+    store1.myothermap = { test: store1.mymap };
+  });
+
   it("undefined", () => {
     let store = crdt<{
       a: number;
