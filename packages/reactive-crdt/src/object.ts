@@ -18,7 +18,7 @@ export type CRDTObject<T extends ObjectSchemaType> = {
   [INTERNAL_SYMBOL]?: Y.Map<T>;
 };
 
-export function crdtObject<T extends ObjectSchemaType>(initializer: T, map = new Y.Map<any>()) {
+export function crdtObject<T extends ObjectSchemaType>(initializer: T, map = new Y.Map<any>(), doc: any) {
   if (map[$reactive]) {
     throw new Error("unexpected");
     // map = map[$reactive].raw;
@@ -29,12 +29,29 @@ export function crdtObject<T extends ObjectSchemaType>(initializer: T, map = new
       if (typeof p !== "string") {
         throw new Error();
       }
-      const wrapped = crdtValue(value); // TODO: maybe set cache
+      const wrapped = crdtValue(value, doc); // TODO: maybe set cache
       const internal = getInternalAny(wrapped) || wrapped;
       if (internal instanceof Box) {
         map.set(p, internal.value);
       } else {
-        map.set(p, internal);
+        // if internal is a y.map then put it into the separate objects map and save reference to it
+        // let reference = objects.push(map)
+        if (internal instanceof Y.Map) {
+          let objects = doc.getArray("objects");
+          let lastindex = objects.length;
+          let existingIndex = objects.map((el, index) => {
+            if (el === internal) return index;
+          });
+          existingIndex = existingIndex.filter(el => el !== undefined);
+          if (existingIndex.length === 0) {
+            objects.insert(lastindex, [internal]);
+          } else {
+            lastindex = existingIndex[0];
+          }
+          map.set(p, "ref-" + lastindex);
+        } else {
+          map.set(p, internal);
+        }
       }
       return true;
     },
@@ -54,7 +71,7 @@ export function crdtObject<T extends ObjectSchemaType>(initializer: T, map = new
         // console.warn("no receiver getting property", p);
       }
       let ret = map.get(p);
-      ret = parseYjsReturnValue(ret, ic);
+      ret = parseYjsReturnValue(ret, doc, ic);
       return ret;
     },
     deleteProperty: (target, p) => {

@@ -27,12 +27,12 @@ export function getInternalAny(
   return object[INTERNAL_SYMBOL];
 }
 
-export function crdtValue<T extends NestedSchemaType>(value: T | Y.Array<any> | Y.Map<any>) {
+export function crdtValue<T extends NestedSchemaType>(value: T | Y.Array<any> | Y.Map<any>, doc?: any) {
   value = (getInternalAny(value as any) as any) || value; // unwrap
   if (value instanceof Y.Array) {
     return crdtArray([], value);
   } else if (value instanceof Y.Map) {
-    return crdtObject({}, value);
+    return crdtObject({}, value, doc);
   } else if (typeof value === "string") {
     return value; // TODO
   } else if (Array.isArray(value)) {
@@ -50,7 +50,7 @@ export function crdtValue<T extends NestedSchemaType>(value: T | Y.Array<any> | 
     if (value instanceof Box) {
       return value;
     } else {
-      return crdtObject(value as any);
+      return crdtObject(value as any, undefined, doc);
     }
   } else if (typeof value === "number" || typeof value === "boolean") {
     return value;
@@ -60,7 +60,8 @@ export function crdtValue<T extends NestedSchemaType>(value: T | Y.Array<any> | 
 }
 
 export function crdt<T extends ObjectSchemaType>(doc: Y.Doc) {
-  return crdtObject({} as T, doc.getMap());
+  doc.getArray("objects");
+  return crdtObject({} as T, doc.getMap("struct"), doc);
 }
 
 export type NestedSchemaType = JSONValue | ObjectSchemaType | Box<any> | Y.AbstractType<any> | NestedSchemaType[];
