@@ -30,13 +30,13 @@ export function getInternalAny(
 export function crdtValue<T extends NestedSchemaType>(value: T | Y.Array<any> | Y.Map<any>, doc?: any) {
   value = (getInternalAny(value as any) as any) || value; // unwrap
   if (value instanceof Y.Array) {
-    return crdtArray([], value);
+    return crdtArray([], value, doc);
   } else if (value instanceof Y.Map) {
     return crdtObject({}, value, doc);
   } else if (typeof value === "string") {
     return value; // TODO
   } else if (Array.isArray(value)) {
-    return crdtArray(value as any[]);
+    return crdtArray(value as any[], undefined, doc);
   } else if (
     value instanceof Y.XmlElement ||
     value instanceof Y.XmlFragment ||

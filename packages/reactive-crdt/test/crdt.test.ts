@@ -3,11 +3,30 @@ import { Box, boxed } from "../src/boxed";
 import * as Y from "yjs";
 
 describe("reactive-crdt", () => {
-  it("move already inserted object to different location in document", () => {
+  it("assign already inserted object to different location in document", () => {
     const doc1 = new Y.Doc();
     let store1 = crdt<any>(doc1);
     store1.mymap = {};
     store1.myothermap = { test: store1.mymap };
+  });
+
+  it("assign already inserted array to different location in document", () => {
+    const doc1 = new Y.Doc();
+    let store1 = crdt<any>(doc1);
+    store1.myarr = [2];
+    store1.myotherarr = store1.myarr;
+    console.log(JSON.stringify(store1));
+  });
+
+  it("push object to array twice", () => {
+    const doc1 = new Y.Doc();
+    let store1 = crdt<any>(doc1);
+    store1.mymap = { test: true };
+    store1.myarr = [];
+    store1.myarr.push(store1.mymap);
+    store1.myarr.push(store1.mymap);
+    console.log(JSON.stringify(store1));
+    console.log(JSON.stringify(store1.myarr[0]));
   });
 
   it("undefined", () => {

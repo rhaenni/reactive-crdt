@@ -34,11 +34,11 @@ export function crdtObject<T extends ObjectSchemaType>(initializer: T, map = new
       if (internal instanceof Box) {
         map.set(p, internal.value);
       } else {
-        // if internal is a y.map then put it into the separate objects map and save reference to it
-        // let reference = objects.push(map)
-        if (internal instanceof Y.Map) {
+        // if internal is a yjs type then put it into the separate objects map and save reference to it
+        if (isYType(internal)) {
           let objects = doc.getArray("objects");
           let lastindex = objects.length;
+          // TODO: optimize this horrible code to check for existing object
           let existingIndex = objects.map((el, index) => {
             if (el === internal) return index;
           });

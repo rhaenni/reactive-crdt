@@ -17,13 +17,13 @@ export type CRDTArray<T> = {
     : T;
 } & T[]; // TODO: should return ArrayImplementation<T> on getter
 
-function arrayImplementation<T>(arr: Y.Array<T>) {
+function arrayImplementation<T>(arr: Y.Array<T>, doc: any) {
   const slice = function slice() {
     let ic = this[$reactiveproxy]?.implicitObserver;
     (arr as any)._implicitObserver = ic;
     const items = arr.slice.bind(arr).apply(arr, arguments);
     return items.map(item => {
-      const ret = parseYjsReturnValue(item, ic);
+      const ret = parseYjsReturnValue(item, doc, ic);
       return ret;
     });
   } as T[]["slice"];
@@ -34,7 +34,24 @@ function arrayImplementation<T>(arr: Y.Array<T>) {
       if (internal instanceof Box) {
         return internal.value;
       } else {
-        return internal;
+        // if internal is a yjs type then put it into the separate objects map and save reference to it
+        if (isYType(internal)) {
+          let objects = doc.getArray("objects");
+          let lastindex = objects.length;
+          // TODO: optimize this horrible code to check for existing object
+          let existingIndex = objects.map((el, index) => {
+            if (el === internal) return index;
+          });
+          existingIndex = existingIndex.filter(el => el !== undefined);
+          if (existingIndex.length === 0) {
+            objects.insert(lastindex, [internal]);
+          } else {
+            lastindex = existingIndex[0];
+          }
+          return "ref-" + lastindex;
+        } else {
+          return internal;
+        }
       }
     });
   };
@@ -113,12 +130,12 @@ function propertyToNumber(p: string | number | symbol) {
   return p;
 }
 
-export function crdtArray<T>(initializer: T[], arr = new Y.Array<T>()) {
+export function crdtArray<T>(initializer: T[], arr = new Y.Array<T>(), doc: any) {
   if (arr[$reactive]) {
     throw new Error("unexpected");
     // arr = arr[$reactive].raw;
   }
-  const implementation = arrayImplementation(arr);
+  const implementation = arrayImplementation(arr, doc);
 
   const proxy = new Proxy((implementation as any) as CRDTArray<T>, {
     set: (target, pArg, value) => {
@@ -145,7 +162,7 @@ export function crdtArray<T>(initializer: T[], arr = new Y.Array<T>()) {
           // console.warn("no receiver getting property", p);
         }
         let ret = arr.get(p) as any;
-        ret = parseYjsReturnValue(ret, ic);
+        ret = parseYjsReturnValue(ret, doc, ic);
         return ret;
       }
 
