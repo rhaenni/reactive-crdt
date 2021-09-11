@@ -71,7 +71,10 @@ function arrayImplementation<T>(arr: Y.Array<T>, doc: any) {
     },
 
     insert: arr.insert.bind(arr) as Y.Array<T>["insert"],
-    toJSON: arr.toJSON.bind(arr) as Y.Array<T>["toJSON"],
+    // yjs toJSON has to be replaced because we have to resolve references to objects
+    toJSON: function() {
+      return slice.apply(this);
+    },
 
     forEach: function() {
       return [].forEach.apply(slice.apply(this), arguments);

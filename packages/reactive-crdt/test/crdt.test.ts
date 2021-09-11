@@ -25,8 +25,7 @@ describe("reactive-crdt", () => {
     store1.myarr = [];
     store1.myarr.push(store1.mymap);
     store1.myarr.push(store1.mymap);
-    console.log(JSON.stringify(store1));
-    console.log(JSON.stringify(store1.myarr[0]));
+    console.log(JSON.stringify(store1)); // should output serialized object with references resolved
   });
 
   it("undefined", () => {
